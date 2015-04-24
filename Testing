@@ -1,0 +1,53 @@
+PROC SQL;
+	CREATE TABLE TEMP
+	AS	SELECT 
+                PPTY_CD,
+                RT_CTGY_CD,
+				CASE 
+					WHEN MKT_SEG_CD = 'Groups' THEN 'GROUP'
+					ELSE MKT_SEG_CD
+				END AS MKT_SEG_CD,
+                RM_BK_SRVC_DT, 
+                RM_BK_PST_DT, 
+                SUM(ROOMS_BKD) AS ROOMS_BKD
+            FROM( 
+                SELECT 
+                    D.PPTY_CD, 
+                     D.RT_CTGY_CD,
+                     CTRC_MSTR.MKT_SEG_CD,
+                     D.RM_TYP_CD, 
+                     D.BLK_SRVC_DT AS RM_BK_SRVC_DT,  
+                     D.BLK_PST_DT AS RM_BK_PST_DT, 
+                     CASE WHEN B.PPTY_RM_TYP_DVC_LCKOFF_IN='T' THEN (D.BLK_RM_SOLD_CN*2) ELSE D.BLK_RM_SOLD_CN END AS ROOMS_BKD
+                FROM 
+                    RMSR.BLK D, RMSR.CTRC_MSTR, RMSR.PPTY_RM_TYP B
+                WHERE                    
+                     D.RM_TYP_CD = B.RM_TYP_CD
+                     AND D.CTRC_CD=CTRC_MSTR.CTRC_CD 
+                     AND D.CTRC_CD NOT IN ('01950N','AKV CC','AKV Intra','AKV RCI','AKV2007',
+                                           'AUL CC','AUL Intra','AUL RCI','AUL2007','BCV CC',
+                                           'BCV Intra','BCV RCI','BCV2007','BKW CC','BKW Intra',
+                                           'BKW RCI','BLT CC','BLT Intra','BLT RCI','BLT2007',
+                                           'BWV2007','GCA CC','GCA Intra','GCA RCI','GCA2007',
+                                           'HHI CC','HHI Intra','HHI RCI','HHI2007','KID CC',
+                                           'KID Intra','KID RCI','KID2007','M$R$2007','M$R$AUL',
+                                           'M$R$GCA','M$R$HHI','M$R$VBR','OKW CC','OKW Intra',
+                                           'OKW RCI','OKW2007','SSR CC','SSR Intra','SSR RCI',
+                                           'SSR2007','VBR CC','VBR Intra','VBR RCI','VBR2007',
+                                           'VWL CC','VWL Intra','VWL RCI','VWL2007'
+											'POL2007','POL intra','POL CC','POL RCI',
+											'VGF2007','VGF RCI','VGF Intra','VGF CC')
+                        AND CTRC_MSTR.CTRC_MSTR_PST_DT=D.BLK_PST_DT 
+/*Test*/
+/*                        AND D.BLK_PST_DT BETWEEN TODAY()-29 AND TODAY()-1*/
+/*                        AND D.BLK_SRVC_DT BETWEEN TODAY()-30 AND TODAY()-2*/
+                        AND D.BLK_PST_DT BETWEEN TODAY()-3 AND TODAY()-1
+                        AND D.BLK_SRVC_DT BETWEEN TODAY()-4 AND TODAY()-2
+                        AND D.BLK_DY_LEFT_CN = -1
+/*                        AND D.RT_CTGY_CD  IN  ( 'GRP' )*/
+                        AND CTRC_MSTR.MSTR_CTRC_TYP_CD  IN  ('R')
+            )
+        GROUP BY 
+            PPTY_CD, RT_CTGY_CD, MKT_SEG_CD, RM_BK_SRVC_DT, RM_BK_PST_DT
+	;
+QUIT;
