@@ -7,6 +7,7 @@ PROC SQL;
 					WHEN MKT_SEG_CD = 'Groups' THEN 'GROUP'
 					ELSE MKT_SEG_CD
 				END AS MKT_SEG_CD,
+		Tesing,
                 RM_BK_SRVC_DT, 
                 RM_BK_PST_DT, 
                 SUM(ROOMS_BKD) AS ROOMS_BKD
